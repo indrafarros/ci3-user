@@ -164,7 +164,30 @@
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
-                        <li class="nav-item menu-open">
+
+                        <!-- Query Menu -->
+
+                        <?php
+                        $role_id = $this->session->userdata('roles');
+                        $queryMenu = "SELECT `user_menu`.`id`, `menu`
+                FROM `user_menu` JOIN `user_group_menu`
+                  ON `user_menu`.`id` = `user_group_menu`.`menu_id`
+               WHERE `user_group_menu`.`roles_id` = $role_id
+            ORDER BY `user_group_menu`.`menu_id` ASC
+            ";
+                        $menu = $this->db->query($queryMenu)->result_array();
+
+
+                        ?>
+
+                        <!-- LOOPING MENU -->
+                        <?php foreach ($menu as $m)  ?>
+                        <div class="sidebar-heading">
+                            <?= $m['menu']; ?>
+                        </div>
+
+                        <!-- End -->
+                        <li class="nav-item">
                             <a href="#" class="nav-link active">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
@@ -172,15 +195,7 @@
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="./index.html" class="nav-link active">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Dashboard</p>
-                                    </a>
-                                </li>
 
-                            </ul>
                         </li>
                         <li class="nav-item">
                             <a href="pages/widgets.html" class="nav-link">
@@ -289,72 +304,15 @@
                             </ul>
                         </li>
 
-
-                        <li class="nav-header">MULTI LEVEL EXAMPLE</li>
-
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-circle"></i>
-                                <p>
-                                    Level 1
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="#" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Level 2</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="#" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>
-                                            Level 2
-                                            <i class="right fas fa-angle-left"></i>
-                                        </p>
-                                    </a>
-                                    <ul class="nav nav-treeview">
-                                        <li class="nav-item">
-                                            <a href="#" class="nav-link">
-                                                <i class="far fa-dot-circle nav-icon"></i>
-                                                <p>Level 3</p>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="#" class="nav-link">
-                                                <i class="far fa-dot-circle nav-icon"></i>
-                                                <p>Level 3</p>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="#" class="nav-link">
-                                                <i class="far fa-dot-circle nav-icon"></i>
-                                                <p>Level 3</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="#" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Level 2</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
                         <li class="nav-item">
                             <a href="<?= base_url('auth/logout') ?>" class="nav-link">
                                 <i class="nav-icon fas fa-th"></i>
                                 <p>
-                                    Logoutte
+                                    Logout
                                     <span class="right badge badge-danger">New</span>
                                 </p>
                             </a>
                         </li>
-
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->

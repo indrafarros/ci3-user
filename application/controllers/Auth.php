@@ -7,7 +7,7 @@ class Auth extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        is_login();
+
         $this->load->model('Auth_model', 'auth');
     }
 
@@ -152,9 +152,11 @@ class Auth extends CI_Controller
 
     public function login()
     {
-        if ($this->session->userdata('email')) {
-            redirect('admin/dashboard');
-        }
+        // if ($this->session->userdata('roles') == 1) {
+        //     redirect('admin/dashboard');
+        // }
+        is_login();
+
         $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email');
         $this->form_validation->set_rules('password', 'Password', 'required|trim');
 
