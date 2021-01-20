@@ -1,28 +1,27 @@
 <?php
-defined('BASEPATH') or exit('No direct script access allowed');
 
 class Dashboard extends CI_Controller
 {
-
     public function __construct()
     {
         parent::__construct();
         is_login();
-        user_menu();
+        $this->load->model('Menu_model', 'menu');
     }
 
     public function index()
     {
 
-        $data['tes'] = 'Tes';
         $data['login'] = $this->session->userdata('is_login');
         $data['user_session'] = $this->session->userdata();
+        $roles = $this->session->userdata('roles');
 
         $data = [
             'user_session' => $this->session->userdata(),
-            'menu_title' => user_menu(),
-            'title' => 'Admin'
+            'menu_title' => $this->menu->get_menu($roles),
+            'title' => 'User'
         ];
-        $this->template->load('templates/admin/v_index', 'admin/v_content', $data);
+
+        $this->template->load('templates/admin/v_index', 'user/v_content', $data);
     }
 }

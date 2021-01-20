@@ -162,31 +162,7 @@
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                        <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
 
-                        <!-- Query Menu -->
-
-                        <?php
-                        $role_id = $this->session->userdata('roles');
-                        $queryMenu = "SELECT `user_menu`.`id`, `menu`
-                FROM `user_menu` JOIN `user_group_menu`
-                  ON `user_menu`.`id` = `user_group_menu`.`menu_id`
-               WHERE `user_group_menu`.`roles_id` = $role_id
-            ORDER BY `user_group_menu`.`menu_id` ASC
-            ";
-                        $menu = $this->db->query($queryMenu)->result_array();
-
-
-                        ?>
-
-                        <!-- LOOPING MENU -->
-                        <?php foreach ($menu as $m)  ?>
-                        <div class="sidebar-heading">
-                            <?= $m['menu']; ?>
-                        </div>
-
-                        <!-- End -->
                         <li class="nav-item">
                             <a href="#" class="nav-link active">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -197,122 +173,127 @@
                             </a>
 
                         </li>
-                        <li class="nav-item">
-                            <a href="pages/widgets.html" class="nav-link">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    Widgets
-                                    <span class="right badge badge-danger">New</span>
-                                </p>
-                            </a>
-                        </li>
+                        <!-- Query Menu -->
 
 
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-edit"></i>
-                                <p>
-                                    Forms
-                                    <i class="fas fa-angle-left right"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="pages/forms/general.html" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>General Elements</p>
+
+                        <!-- LOOPING MENU -->
+                        <?php foreach ($menu_title as $menu) : ?>
+                            <li class="nav-header"> <?= strtoupper($menu['menu']); ?></li>
+
+
+                            <!-- SIAPKAN SUB-MENU SESUAI MENU -->
+                            <?php
+                            $menuId = $menu['id'];
+                            $querySubMenu = "SELECT *
+                               FROM `user_sub_menu` JOIN `user_menu` 
+                                 ON `user_sub_menu`.`menu_id` = `user_menu`.`id`
+                              WHERE `user_sub_menu`.`menu_id` = $menuId
+                                AND `user_sub_menu`.`is_active` = 1
+                        ";
+                            $subMenu = $this->db->query($querySubMenu)->result_array();
+                            ?>
+
+                            <?php foreach ($subMenu as $sm) : ?>
+                                <?php if ($title == $sm['menu_title']) : ?>
+                                    <li class="nav-item active">
+                                    <?php else : ?>
+                                    <li class="nav-item">
+                                    <?php endif; ?>
+                                    <a class="nav-link" href="<?= base_url($sm['link_url']); ?>">
+                                        <i class="nav-icon <?= $sm['icon_sub']; ?>"></i>
+                                        <p><?= $sm['menu_title']; ?></p>
                                     </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="pages/forms/advanced.html" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Advanced Elements</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="pages/forms/editors.html" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Editors</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="pages/forms/validation.html" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Validation</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+                                    </li>
+                                <?php endforeach; ?>
 
-                        <li class="nav-header">USER MANAGEMENT</li>
-                        <li class="nav-item">
-                            <a href="pages/widgets.html" class="nav-link">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    Widgets
-                                    <span class="right badge badge-danger">New</span>
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-header">EXAMPLES</li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon far fa-plus-square"></i>
-                                <p>
-                                    Extras
-                                    <i class="fas fa-angle-left right"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="#" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>
-                                            Login & Register v1
-                                            <i class="fas fa-angle-left right"></i>
-                                        </p>
-                                    </a>
-                                    <ul class="nav nav-treeview">
-                                        <li class="nav-item">
-                                            <a href="pages/examples/login.html" class="nav-link">
-                                                <i class="far fa-circle nav-icon"></i>
-                                                <p>Login v1</p>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="pages/examples/register.html" class="nav-link">
-                                                <i class="far fa-circle nav-icon"></i>
-                                                <p>Register v1</p>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="pages/examples/forgot-password.html" class="nav-link">
-                                                <i class="far fa-circle nav-icon"></i>
-                                                <p>Forgot Password v1</p>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="pages/examples/recover-password.html" class="nav-link">
-                                                <i class="far fa-circle nav-icon"></i>
-                                                <p>Recover Password v1</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
+                                <!-- <hr class="sidebar-divider mt-3"> -->
+
+                            <?php endforeach; ?>
+
+                            <!-- End -->
+                            <!-- <li class="nav-item">
+                                <a href="#" class="nav-link active">
+                                    <i class="nav-icon fas fa-tachometer-alt"></i>
+                                    <p>
+                                        Dashboard
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+
+                            </li> -->
 
 
-                            </ul>
-                        </li>
 
-                        <li class="nav-item">
-                            <a href="<?= base_url('auth/logout') ?>" class="nav-link">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>
-                                    Logout
-                                    <span class="right badge badge-danger">New</span>
-                                </p>
-                            </a>
-                        </li>
+
+                            <li class="nav-header">USER MANAGEMENT</li>
+                            <li class="nav-item">
+                                <a href="pages/widgets.html" class="nav-link">
+                                    <i class="nav-icon fas fa-th"></i>
+                                    <p>
+                                        Widgets
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-header">EXAMPLES</li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="nav-icon far fa-plus-square"></i>
+                                    <p>
+                                        Extras
+                                        <i class="fas fa-angle-left right"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>
+                                                Login & Register v1
+                                                <i class="fas fa-angle-left right"></i>
+                                            </p>
+                                        </a>
+                                        <ul class="nav nav-treeview">
+                                            <li class="nav-item">
+                                                <a href="pages/examples/login.html" class="nav-link">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Login v1</p>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="pages/examples/register.html" class="nav-link">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Register v1</p>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="pages/examples/forgot-password.html" class="nav-link">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Forgot Password v1</p>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="pages/examples/recover-password.html" class="nav-link">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>Recover Password v1</p>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+
+                                </ul>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="<?= base_url('auth/logout') ?>" class="nav-link">
+                                    <i class="nav-icon fas fa-th"></i>
+                                    <p>
+                                        Logout
+                                        <span class="right badge badge-danger">New</span>
+                                    </p>
+                                </a>
+                            </li>
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->

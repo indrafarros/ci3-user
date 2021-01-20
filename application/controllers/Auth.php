@@ -9,6 +9,7 @@ class Auth extends CI_Controller
         parent::__construct();
 
         $this->load->model('Auth_model', 'auth');
+        $this->load->model('Menu_model', 'menu');
     }
 
     private function _configRules()
@@ -155,7 +156,11 @@ class Auth extends CI_Controller
         // if ($this->session->userdata('roles') == 1) {
         //     redirect('admin/dashboard');
         // }
-        is_login();
+        // if ($this->session->userdata('email')) {
+        //     redirect('user/dashboard');
+        // }
+
+        is_not_login();
 
         $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email');
         $this->form_validation->set_rules('password', 'Password', 'required|trim');
@@ -189,7 +194,8 @@ class Auth extends CI_Controller
                     if ($user['roles'] == 1) {
                         redirect('admin/dashboard');
                     } else {
-                        redirect('user');
+                        redirect('user/dashboard');
+                        // redirect('user');
                     }
                 } else {
                     $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
