@@ -7,9 +7,8 @@ function is_login()
     $CI = get_instance();
 
     $roles = $CI->session->userdata('roles');
-    $email = $CI->session->userdata('email');
 
-    if (!$CI->session->userdata('email')) {
+    if (!$CI->session->userdata('is_login')) {
         redirect('auth');
     } else {
         $menu = $CI->uri->segment(1);
@@ -72,8 +71,12 @@ function user_menu()
     return $ci->menu->get_menu($roles);
 }
 
-function user_sub_menu($menu_id)
+function user_sub_menu($id_menu)
 {
 
     $ci = get_instance();
+
+    $ci->load->model('Menu_model', 'menu');
+
+    return $ci->menu->get_sub_menu($id_menu);
 }

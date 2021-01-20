@@ -194,7 +194,8 @@ class Auth extends CI_Controller
                     if ($user['roles'] == 1) {
                         redirect('admin/dashboard');
                     } else {
-                        redirect('user/dashboard');
+                        redirect('admin/dashboard');
+                        // redirect('user/dashboard');
                         // redirect('user');
                     }
                 } else {
