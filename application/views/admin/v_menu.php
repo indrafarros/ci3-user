@@ -1,3 +1,9 @@
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/dataTables.bootstrap4.min.css">
+<script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+
+
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
@@ -7,7 +13,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">Role Management</li>
+                    <li class="breadcrumb-item active">Menu Management</li>
                 </ol>
             </div><!-- /.col -->
         </div><!-- /.row -->
@@ -21,40 +27,24 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalAddMenu">
+                    <button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#modalAddMenu">
                         Add new menu
                     </button>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th scope="col">Menu</th>
-                                <th scope="col">Action</th>
-                                <!-- <th class="col"></th> -->
-                                <th scope="col">#</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-
-                            <?php $i = 1;
-                            foreach ($menu as $mn) :  ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped" id="menu_table">
+                            <thead>
                                 <tr>
-                                    <th scope="col"><?= $i ?></th>
-                                    <td><?= $mn['menu'] ?></td>
-                                    <td>
-                                        <button type="button" class="btn btn-primary btn-sm" id="btnEditMenu">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-danger btn-sm" value="<?= $mn['id'] ?>" id="btnDeleteMenu">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Menu</th>
+                                    <!-- <th class="col"></th> -->
+                                    <th scope="col">Action</th>
                                 </tr>
+                            </thead>
+                            <tbody>
 
-                            <?php $i++;
-                            endforeach ?>
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -73,7 +63,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add new menu</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -95,33 +85,108 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function() {
-        $("#btnAddMenu").click(function(e) {
-            e.preventDefault();
+<!-- Modal -->
+<div class="modal fade" id="modalEditMenu" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add new menu</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" id="formAddMenu">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
 
+                        <label for="menu_name">Menu Name</label>
+                        <input type="text" class="form-control" name="menu_name" id="menu_name" placeholder="Add menu name">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btnAddMenu">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    var csrfName = '<?php echo $this->security->get_csrf_token_name(); ?>',
+        csrfHash = '<?php echo $this->security->get_csrf_hash(); ?>';
+    data_table();
+
+    function data_table() {
+        var table = $('#menu_table').DataTable({
+            "responsive": true,
+            "destroy": true,
+            "processing": true,
+            "serverSide": true,
+            "order": [],
+
+            "ajax": {
+                "url": "<?= base_url('admin/dashboard/serverside_get_menu') ?>",
+                "dataType": "json",
+                "type": "POST",
+
+
+            },
+            "columnDefs": [{
+                    "targets": [0],
+                    "orderable": false,
+                    "width": "5"
+                },
+                {
+                    "targets": [1],
+                    "width": "auto"
+                },
+                {
+                    "targets": [2],
+                    "width": "200px"
+                }
+            ],
+
+        });
+    }
+    $(document).ready(function() {
+
+        $("#btnAddMenu").click(function(e) {
+
+            e.preventDefault();
+            // alert('test');
             var menu_name = $('#menu_name').val();
             if (menu_name == '') {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
                     text: 'Something went wrong!',
-                })
+                });
             } else {
-
                 $.ajax({
-                    url: "<?= base_url('admin/dashbord/addMenu') ?>",
+                    url: "<?= base_url('admin/dashboard/addMenu') ?>",
                     type: 'post',
                     dataType: 'json',
-                    data: $('formAddMenu').serialize(),
+                    data: {
+                        menu_name: menu_name,
+                        [csrfName]: csrfHash
+                    },
                     success: function(data) {
+                        csrfName = data.csrfName;
+                        csrfHash = data.csrfHash;
+                        // alert(data.message);
+
+                        $('#modalAddMenu').modal('hide');
+                        $('#formAddMenu')[0].reset();
                         Swal.fire(
                             'Add new menu successfuly!',
                             'success'
                         )
+                        // console.log(data);
+                        data_table();
                     }
-
-
                 })
             }
         });
@@ -132,7 +197,6 @@
 
 
         $(document).on('click', "#btnDeleteMenu", function(e) {
-
             e.preventDefault();
             var id = $(this).attr('value');
 
@@ -151,17 +215,39 @@
                         type: 'post',
                         dataType: 'json',
                         data: {
-                            id_menu: id
+                            id_menu: id,
+                            [csrfName]: csrfHash
                         },
                         success: function(data) {
-
+                            csrfName = data.csrfName;
+                            csrfHash = data.csrfHash;
                             Swal.fire(
                                 'Deleted!',
                                 'Your file has been deleted.',
                                 'success'
-                            )
+                            );
+                            data_table();
                         }
                     });
+                }
+            })
+        });
+
+        $(document).on('click', '#btnEditMenu', function(e) {
+            e.preventDefault();
+            var id = $(this).attr('value');
+
+
+            $.ajax({
+                url: '<?= base_url('admin/dashboard/editMenu') ?>',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    id_menu: id,
+                    [csrfName]: csrfHash
+                },
+                success: function(data) {
+
                 }
             })
         })
