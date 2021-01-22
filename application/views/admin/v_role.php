@@ -8,12 +8,12 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Menu Management</h1>
+                <h1 class="m-0"><?= $title ?></h1>
             </div><!-- /.col -->
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">Menu Management</li>
+                    <li class="breadcrumb-item active">Role Management</li>
                 </ol>
             </div><!-- /.col -->
         </div><!-- /.row -->
@@ -85,7 +85,7 @@
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal Edit-->
 <div class="modal fade" id="modalEditMenu" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -95,17 +95,19 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="post" id="formAddMenu">
+            <form method="post" id="formSubmitMenu">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="menu_name">Menu Name</label>
-                        <input type="text" class="form-control" name="menu_name" id="menu_name" placeholder="Add menu name">
+                        <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
+                        <input type="hidden" name="id_edit_name" id="id_edit_name" value="">
+                        <label for="menu_edit_name">Menu Name</label>
+                        <input type="text" class="form-control" name="menu_edit_name" id="menu_edit_name" placeholder="Add menu name">
 
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="btnAddMenu">Add</button>
+                    <button type="button" class="btn btn-primary" id="btnSubmitEdit">Add</button>
                 </div>
             </form>
         </div>
@@ -118,8 +120,8 @@
     data_table();
 
     function data_table() {
-        table = $('#menu_table').DataTable({
-            responsive: true,
+        var table = $('#menu_table').DataTable({
+            "responsive": true,
             "destroy": true,
             "processing": true,
             "serverSide": true,
@@ -128,10 +130,9 @@
             "ajax": {
                 "url": "<?= base_url('admin/dashboard/serverside_get_menu') ?>",
                 "dataType": "json",
-                "data": {
-                    [csrfName]: csrfHash
-                },
-                "type": "POST"
+                "type": "POST",
+
+
             },
             "columnDefs": [{
                     "targets": [0],
@@ -152,11 +153,12 @@
     }
     $(document).ready(function() {
 
-
         $("#btnAddMenu").click(function(e) {
+
             e.preventDefault();
+            // alert('test');
             var menu_name = $('#menu_name').val();
-            if (menu_name == '' && menu_item < 0) {
+            if (menu_name == '') {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -230,14 +232,14 @@
                 }
             })
         });
-
+        // Get menu
         $(document).on('click', '#btnEditMenu', function(e) {
             e.preventDefault();
-            var id = $(this).attr('value');
+            var id = $(this).data('id');
 
 
             $.ajax({
-                url: '<?= base_url('admin/dashboard/editMenu') ?>',
+                url: '<?= base_url('admin/dashboard/getEditMenu') ?>',
                 type: 'post',
                 dataType: 'json',
                 data: {
@@ -246,8 +248,51 @@
                 },
                 success: function(data) {
 
+                    csrfName = data.csrfName;
+                    csrfHash = data.csrfHash;
+                    $('#modalEditMenu').modal('show');
+                    $('#id_edit_name').val(data.menu.id);
+                    $('#menu_edit_name').val(data.menu.menu);
+                    // console.log(data);
                 }
             })
+        });
+
+        $(document).on('click', '#btnSubmitEdit', function(e) {
+            e.preventDefault();
+
+            var id = $('#id_edit_name').val();
+            var menu_name = $('#menu_edit_name').val();
+
+            if (id == '' || menu_name == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong!',
+                });
+            } else {
+                // let form = $('#formSubmitMenu').serialize();
+                $.ajax({
+                    url: '<?= base_url('admin/dashboard/submitEditMenu') ?>',
+                    dataType: 'json',
+                    type: 'post',
+                    data: {
+                        id_edit_name: id,
+                        menu_edit_name: menu_name,
+                        [csrfName]: csrfHash
+
+                    },
+                    success: function(data) {
+                        csrfName = data.csrfName;
+                        csrfHash = data.csrfHash;
+                        $('#modalEditMenu').modal('hide');
+                        $('#formSubmitMenu')[0].reset();
+                        data_table();
+                    }
+                })
+            }
+
+
         })
     });
 </script>

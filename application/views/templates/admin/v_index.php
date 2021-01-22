@@ -180,14 +180,11 @@
                                         <i class="right fas fa-angle-left"></i>
                                     </p>
                                     </a>
-
                         </li>
-
 
                         <!-- LOOPING MENU -->
                         <?php foreach ($menu_title as $menu) : ?>
                             <li class="nav-header"> <?= strtoupper($menu['menu']); ?></li>
-
 
                             <!-- SIAPKAN SUB-MENU SESUAI MENU -->
                             <?php

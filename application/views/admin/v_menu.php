@@ -85,7 +85,7 @@
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal Edit-->
 <div class="modal fade" id="modalEditMenu" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -95,19 +95,19 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="post" id="formAddMenu">
+            <form method="post" id="formSubmitMenu">
                 <div class="modal-body">
                     <div class="form-group">
                         <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
-
-                        <label for="menu_name">Menu Name</label>
-                        <input type="text" class="form-control" name="menu_name" id="menu_name" placeholder="Add menu name">
+                        <input type="hidden" name="id_edit_name" id="id_edit_name" value="">
+                        <label for="menu_edit_name">Menu Name</label>
+                        <input type="text" class="form-control" name="menu_edit_name" id="menu_edit_name" placeholder="Add menu name">
 
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="btnAddMenu">Add</button>
+                    <button type="button" class="btn btn-primary" id="btnSubmitEdit">Add</button>
                 </div>
             </form>
         </div>
@@ -232,14 +232,14 @@
                 }
             })
         });
-
+        // Get menu
         $(document).on('click', '#btnEditMenu', function(e) {
             e.preventDefault();
-            var id = $(this).attr('value');
+            var id = $(this).data('id');
 
 
             $.ajax({
-                url: '<?= base_url('admin/dashboard/editMenu') ?>',
+                url: '<?= base_url('admin/dashboard/getEditMenu') ?>',
                 type: 'post',
                 dataType: 'json',
                 data: {
@@ -248,8 +248,51 @@
                 },
                 success: function(data) {
 
+                    csrfName = data.csrfName;
+                    csrfHash = data.csrfHash;
+                    $('#modalEditMenu').modal('show');
+                    $('#id_edit_name').val(data.menu.id);
+                    $('#menu_edit_name').val(data.menu.menu);
+                    // console.log(data);
                 }
             })
+        });
+
+        $(document).on('click', '#btnSubmitEdit', function(e) {
+            e.preventDefault();
+
+            var id = $('#id_edit_name').val();
+            var menu_name = $('#menu_edit_name').val();
+
+            if (id == '' || menu_name == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong!',
+                });
+            } else {
+                // let form = $('#formSubmitMenu').serialize();
+                $.ajax({
+                    url: '<?= base_url('admin/dashboard/submitEditMenu') ?>',
+                    dataType: 'json',
+                    type: 'post',
+                    data: {
+                        id_edit_name: id,
+                        menu_edit_name: menu_name,
+                        [csrfName]: csrfHash
+
+                    },
+                    success: function(data) {
+                        csrfName = data.csrfName;
+                        csrfHash = data.csrfHash;
+                        $('#modalEditMenu').modal('hide');
+                        $('#formSubmitMenu')[0].reset();
+                        data_table();
+                    }
+                })
+            }
+
+
         })
     });
 </script>
