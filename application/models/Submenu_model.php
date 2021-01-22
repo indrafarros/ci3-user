@@ -1,21 +1,25 @@
 <?php
 
-class Menu_model extends CI_Model
+class Submenu_model extends CI_Model
 {
 
-    public $table = 'user_menu'; //nama tabel dari database
-    public $column_order = array('id', 'menu'); //Sesuaikan dengan field
-    public $column_search = array('menu'); //field yang diizin untuk pencarian 
-    public $order = array('menu' => 'asc'); // default order 
+    // public $table = 'user_sub_menu'; //nama tabel dari database
+    public $column_order = array('id', 'menu_id', 'menu_title', 'link_url', 'icon_sub', 'is_active'); //Sesuaikan dengan field
+    public $column_search = array('menu_title'); //field yang diizin untuk pencarian 
+    public $order = array(''); // default order 
     function __construct()
     {
         parent::__construct();
     }
 
+
     private function _get_datatables_query()
     {
+        $this->db->select('user_sub_menu.id as id_sub, user_sub_menu.menu_id, user_sub_menu.menu_title, user_sub_menu.link_url, user_sub_menu.icon_sub, user_sub_menu.is_active, user_menu.id, user_menu.menu')->from('user_sub_menu')->join('user_menu', 'user_sub_menu.menu_id = user_menu.id');
+        // $this->db->from($this->table);
 
-        $this->db->from($this->table);
+
+
 
         $i = 0;
 
@@ -43,6 +47,8 @@ class Menu_model extends CI_Model
         } else if (isset($this->order)) {
             $order = $this->order;
             $this->db->order_by(key($order), $order[key($order)]);
+
+            // $this->db->join('user_menu', 'user_sub_menu.menu_id = user_menu.id');
         }
     }
 
@@ -64,7 +70,7 @@ class Menu_model extends CI_Model
 
     public function count_all()
     {
-        $this->db->from($this->table);
+        $this->db->from('user_sub_menu');
         return $this->db->count_all_results();
     }
 
@@ -73,28 +79,32 @@ class Menu_model extends CI_Model
         return $this->db->get('user_menu')->result_array();
     }
 
-    public function addMenu($data)
+    public function addSubMenu($data)
     {
-        return $this->db->insert('user_menu', $data);
+        return $this->db->insert('user_sub_menu', $data);
     }
 
-    public function deleteMenu($id_menu)
+    public function deleteSubMenu($id_menu)
     {
-        return $this->db->delete('user_menu', array('id' => $id_menu));
+        return $this->db->delete('user_sub_menu', array('id' => $id_menu));
     }
 
     public function getDataById($id_menu)
     {
-        return $this->db->get_where('user_menu', ['id' => $id_menu])->row_array();
+        return $this->db->get_where('user_sub_menu', ['id' => $id_menu])->row_array();
     }
 
     public function submitEdit($data)
     {
+
         $id = $data['id'];
-        $menu = $data['menu'];
-        $this->db->set('menu', $menu);
+        // $id = $data['id'];
+        // $menu = $data['menu'];
+        // $this->db->set('menu', $menu);
+        // $this->db->where('id', $id);
+        // return $this->db->update('user_menu');
         $this->db->where('id', $id);
-        return $this->db->update('user_menu');
+        $this->db->update('user_sub_menu', $data);
     }
 
     public function get_menu($role_id)
@@ -110,17 +120,12 @@ class Menu_model extends CI_Model
         return $menu_title;
     }
 
-    public function get_sub_menu($id_menu)
+    public function get_sub_menu()
     {
-
-
-        $querySubMenu = "SELECT *
-               FROM `user_sub_menu` JOIN `user_menu` 
-                 ON `user_sub_menu`.`menu_id` = `user_menu`.`id`
-              WHERE `user_sub_menu`.`menu_id` = $id_menu
-                AND `user_sub_menu`.`is_active` = 1
-        ";
-        $subMenu = $this->db->query($querySubMenu)->result_array();
-        return $subMenu;
+        $query = "SELECT `user_sub_menu`.*, `user_menu`.`menu`
+        FROM `user_sub_menu` JOIN `user_menu`
+        ON `user_sub_menu`.`menu_id` = `user_menu`.`id`
+      ";
+        return $this->db->query($query)->result_array();
     }
 }

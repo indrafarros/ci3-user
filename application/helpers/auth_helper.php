@@ -63,7 +63,7 @@ function is_not_login()
 function user_menu()
 {
     $ci = get_instance();
-    $user_session = $ci->session->userdata('email');
+    // $user_session = $ci->session->userdata('email');
     $roles = $ci->session->userdata('roles');
 
     $ci->load->model('Menu_model', 'menu');

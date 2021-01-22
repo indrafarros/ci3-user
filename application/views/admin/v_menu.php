@@ -191,9 +191,6 @@
             }
         });
 
-        $("#btnEditMenu").click(function() {
-            $("modalEditMenu").modal();
-        });
 
 
         $(document).on('click', "#btnDeleteMenu", function(e) {
