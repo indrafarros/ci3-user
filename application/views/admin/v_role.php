@@ -27,15 +27,15 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#modalAddMenu">
-                        Add new menu
+                    <button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#modalAddRole">
+                        Add new access
                     </button>
                     <div class="table-responsive">
                         <table class="table table-hover table-striped" id="menu_table">
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Menu</th>
+                                    <th scope="col">Role Name</th>
                                     <!-- <th class="col"></th> -->
                                     <th scope="col">Action</th>
                                 </tr>
@@ -59,26 +59,26 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="modalAddMenu" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="modalAddRole" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add new menu</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add new access</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="post" id="formAddMenu">
+            <form method="post" id="formAddRole">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="menu_name">Menu Name</label>
-                        <input type="text" class="form-control" name="menu_name" id="menu_name" placeholder="Add menu name">
+                        <label for="role_name">Role Name</label>
+                        <input type="text" class="form-control" name="role_name" id="role_name" placeholder="Add role name">
 
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="btnAddMenu">Add</button>
+                    <button type="button" class="btn btn-primary" id="btnAddRole">Add</button>
                 </div>
             </form>
         </div>
@@ -128,7 +128,7 @@
             "order": [],
 
             "ajax": {
-                "url": "<?= base_url('admin/dashboard/serverside_get_menu') ?>",
+                "url": "<?= base_url('admin/dashboard/serverside_role_access') ?>",
                 "dataType": "json",
                 "type": "POST",
 
@@ -153,12 +153,12 @@
     }
     $(document).ready(function() {
 
-        $("#btnAddMenu").click(function(e) {
+        $("#btnAddRole").click(function(e) {
 
             e.preventDefault();
             // alert('test');
-            var menu_name = $('#menu_name').val();
-            if (menu_name == '') {
+            var role_name = $('#role_name').val();
+            if (role_name == '') {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -166,22 +166,21 @@
                 });
             } else {
                 $.ajax({
-                    url: "<?= base_url('admin/dashboard/addMenu') ?>",
+                    url: "<?= base_url('admin/dashboard/addRole') ?>",
                     type: 'post',
                     dataType: 'json',
                     data: {
-                        menu_name: menu_name,
+                        role_name: role_name,
                         [csrfName]: csrfHash
                     },
                     success: function(data) {
                         csrfName = data.csrfName;
                         csrfHash = data.csrfHash;
-                        // alert(data.message);
 
-                        $('#modalAddMenu').modal('hide');
-                        $('#formAddMenu')[0].reset();
+                        $('#modalAddRole').modal('hide');
+                        $('#formAddRole')[0].reset();
                         Swal.fire(
-                            'Add new menu successfuly!',
+                            'Add new role successfuly!',
                             'success'
                         )
                         // console.log(data);
@@ -196,7 +195,7 @@
         });
 
 
-        $(document).on('click', "#btnDeleteMenu", function(e) {
+        $(document).on('click', "#btnDeleteRole", function(e) {
             e.preventDefault();
             var id = $(this).attr('value');
 
@@ -211,11 +210,11 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: '<?= base_url('admin/dashboard/deleteMenu') ?>',
+                        url: '<?= base_url('admin/dashboard/deleteRole') ?>',
                         type: 'post',
                         dataType: 'json',
                         data: {
-                            id_menu: id,
+                            id_role: id,
                             [csrfName]: csrfHash
                         },
                         success: function(data) {

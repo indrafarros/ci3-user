@@ -11,19 +11,18 @@ class Dashboard extends CI_Controller
 
         $this->load->model('Menu_model', 'menu');
         $this->load->model('Submenu_model', 'submenu');
+        $this->load->model('Roleaccess_model', 'role');
         // user_menu();
     }
 
     public function index()
     {
-
         $data = [
             'user_session' => $this->session->userdata(),
             'menu_title' => user_menu(),
             // 'subMenu' => user_sub_menu($id_menu),
             'title' => 'Admin'
         ];
-
 
         $this->template->load('templates/admin/v_index', 'admin/v_content', $data);
     }
@@ -36,8 +35,6 @@ class Dashboard extends CI_Controller
             'menu_title' => user_menu(),
             'title' => 'Menu Management'
         ];
-        // $data['menu'] = $this->menu->get_all_menu();
-
 
         $this->template->load('templates/admin/v_index', 'admin/v_menu', $data);
     }
@@ -138,8 +135,6 @@ class Dashboard extends CI_Controller
             'title' => 'Submenu Management',
             'submenu' => $this->submenu->get_sub_menu()
         ];
-        // $data['menu'] = $this->menu->get_all_menu();
-
 
         $this->template->load('templates/admin/v_index', 'admin/v_submenu', $data);
     }
@@ -252,13 +247,70 @@ class Dashboard extends CI_Controller
 
     public function role_management()
     {
-
         $data = [
             'user_session' => $this->session->userdata(),
             'menu_title' => user_menu(),
-
             'title' => 'Admin'
         ];
         $this->template->load('templates/admin/v_index', 'admin/v_role', $data);
+    }
+
+    public function addRole()
+    {
+        $data = [
+            'role_access' => $_POST['role_name'],
+            // 'is_active' => 1,
+            'created_at' => time()
+        ];
+
+        $this->role->addRole($data);
+
+        $data = array(
+            'csrfName' => $this->security->get_csrf_token_name(),
+            'csrfHash' => $this->security->get_csrf_hash()
+        );
+        echo json_encode($data);
+    }
+
+    public function deleteRole()
+    {
+
+        $id = $_POST['id_role'];
+        $this->role->deleteRole($id);
+
+        $data = array(
+            'csrfName' => $this->security->get_csrf_token_name(),
+            'csrfHash' => $this->security->get_csrf_hash()
+        );
+        echo json_encode($data);
+    }
+
+    public function serverside_role_access()
+    {
+        if ($this->input->is_ajax_request() == true) {
+            $list = $this->role->get_datatables();
+            $data = array();
+            $no = $_POST['start'];
+            foreach ($list as $field) {
+                $no++;
+                $row = array();
+                $id_c = $field->id;
+                $row[] = $no;
+                $row[] = $field->role_access;
+                $row[] = '<button class="btn btn-outline-danger btn-sm" id="btnDeleteRole" value="' . $id_c . '"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-outline-info btn-sm" id="btnEditRole" data-id="' . $id_c . '" value="' . $field->role_access . '"><i class="fas fa-edit"></i></button>';
+                $data[] = $row;
+            }
+            $output = array(
+                "draw" => $_POST['draw'],
+                "recordsTotal" => $this->role->count_all(),
+                "recordsFiltered" => $this->role->count_filtered(),
+                "data" => $data,
+            );
+
+            echo json_encode($output);
+        } else {
+            exit('Maaf data tidak bisa ditampilkan');
+        }
     }
 }

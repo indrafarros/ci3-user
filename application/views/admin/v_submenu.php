@@ -52,8 +52,6 @@
                 </div>
             </div>
         </div>
-
-
     </div>
     <!-- /.row -->
     <!-- Main row -->
@@ -220,9 +218,7 @@
         });
     }
     $(document).ready(function() {
-
         $("#btnAddSubMenu").click(function(e) {
-
             e.preventDefault();
             // alert('test');
             var submenu_name = $('#submenu_name').val();
@@ -252,15 +248,12 @@
                     success: function(data) {
                         csrfName = data.csrfName;
                         csrfHash = data.csrfHash;
-                        // alert(data.message);
-
                         $('#modalAddSubMenu').modal('hide');
                         $('#formAddSubMenu')[0].reset();
                         Swal.fire(
                             'Add new menu successfuly!',
                             'success'
                         )
-                        // console.log(data);
                         data_table();
                     }
                 })
@@ -307,8 +300,6 @@
         $(document).on('click', '#btnEditSubMenu', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-
-
             $.ajax({
                 url: '<?= base_url('admin/dashboard/getEditSubMenu') ?>',
                 type: 'post',
@@ -318,12 +309,9 @@
                     [csrfName]: csrfHash
                 },
                 success: function(data) {
-
                     csrfName = data.csrfName;
                     csrfHash = data.csrfHash;
                     $('#modalEditSubMenu').modal('show');
-
-                    // $('#id_edit_name').val(data.menu.id);
                     $('#id_edit_submenu').val(data.menu.id);
                     $('#submenu_edit_name').val(data.menu.menu_title);
                     $('#submenu_edit_id').val(data.menu.menu_id);
@@ -352,7 +340,6 @@
                     text: 'Something went wrong!',
                 });
             } else {
-                // let form = $('#formSubmitMenu').serialize();
                 $.ajax({
                     url: '<?= base_url('admin/dashboard/submitEditSubMenu') ?>',
                     dataType: 'json',
@@ -370,15 +357,11 @@
                         csrfName = data.csrfName;
                         csrfHash = data.csrfHash;
                         $('#modalEditSubMenu').modal('hide');
-
-                        // $('#modalEditMenu').modal('hide');
                         $('#formSubmitSubMenu')[0].reset();
                         data_table();
                     }
                 })
             }
-
-
         })
     });
 </script>

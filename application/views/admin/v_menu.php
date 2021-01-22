@@ -154,7 +154,6 @@
     $(document).ready(function() {
 
         $("#btnAddMenu").click(function(e) {
-
             e.preventDefault();
             // alert('test');
             var menu_name = $('#menu_name').val();
@@ -176,15 +175,12 @@
                     success: function(data) {
                         csrfName = data.csrfName;
                         csrfHash = data.csrfHash;
-                        // alert(data.message);
-
                         $('#modalAddMenu').modal('hide');
                         $('#formAddMenu')[0].reset();
                         Swal.fire(
                             'Add new menu successfuly!',
                             'success'
                         )
-                        // console.log(data);
                         data_table();
                     }
                 })
@@ -233,8 +229,6 @@
         $(document).on('click', '#btnEditMenu', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-
-
             $.ajax({
                 url: '<?= base_url('admin/dashboard/getEditMenu') ?>',
                 type: 'post',
@@ -244,23 +238,19 @@
                     [csrfName]: csrfHash
                 },
                 success: function(data) {
-
                     csrfName = data.csrfName;
                     csrfHash = data.csrfHash;
                     $('#modalEditMenu').modal('show');
                     $('#id_edit_name').val(data.menu.id);
                     $('#menu_edit_name').val(data.menu.menu);
-                    // console.log(data);
                 }
             })
         });
 
         $(document).on('click', '#btnSubmitEdit', function(e) {
             e.preventDefault();
-
             var id = $('#id_edit_name').val();
             var menu_name = $('#menu_edit_name').val();
-
             if (id == '' || menu_name == '') {
                 Swal.fire({
                     icon: 'error',
@@ -268,7 +258,6 @@
                     text: 'Something went wrong!',
                 });
             } else {
-                // let form = $('#formSubmitMenu').serialize();
                 $.ajax({
                     url: '<?= base_url('admin/dashboard/submitEditMenu') ?>',
                     dataType: 'json',
@@ -288,8 +277,6 @@
                     }
                 })
             }
-
-
         })
     });
 </script>
