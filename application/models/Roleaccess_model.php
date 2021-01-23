@@ -77,4 +77,16 @@ class Roleaccess_model extends CI_Model
     {
         return $this->db->delete('user_role_access', array('id' => $id));
     }
+
+    public function getById($id)
+    {
+        return $this->db->get_where('user_role_access', ['id' => $id])->row_array();
+    }
+
+    public function getRoleName($id)
+    {
+        $sql = "SELECT user_group_menu.id, user_group_menu.menu_id, user_group_menu.roles_id, user_role_access.id, user_role_access.role_access FROM user_group_menu JOIN user_role_access ON user_group_menu.roles_id = user_role_access.id WHERE user_group_menu.roles_id = '$id' GROUP BY user_group_menu.roles_id
+        ";
+        return $this->db->query($sql)->row_array();
+    }
 }

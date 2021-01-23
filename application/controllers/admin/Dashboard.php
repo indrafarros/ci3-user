@@ -250,9 +250,27 @@ class Dashboard extends CI_Controller
         $data = [
             'user_session' => $this->session->userdata(),
             'menu_title' => user_menu(),
-            'title' => 'Admin'
+            // 'role' => $this->role->getById($this->session->userdata('roles')),
+            'role_name' => $this->role->getRoleName($this->session->userdata('roles')),
+            'title' => 'Role Management'
         ];
+
         $this->template->load('templates/admin/v_index', 'admin/v_role', $data);
+    }
+
+    public function viewRole()
+    {
+        $id_role = $_POST['id_role'];
+
+        $data = array(
+            'menu_title' => user_menu(),
+            'role' => $this->db->get_where('user_role_access', ['id' => $id_role])->row_array(),
+            // 'role' => $this->role->getById($this->session->userdata('roles')),
+            'csrfName' => $this->security->get_csrf_token_name(),
+            'csrfHash' => $this->security->get_csrf_hash()
+        );
+
+        echo json_encode($data);
     }
 
     public function addRole()
@@ -285,6 +303,25 @@ class Dashboard extends CI_Controller
         echo json_encode($data);
     }
 
+    public function getEditRole()
+    {
+        $id = $_POST['id_role'];
+
+        // $this->role->getById($id);
+
+        $data = array(
+            'role' => $this->role->getById($id),
+            'csrfName' => $this->security->get_csrf_token_name(),
+            'csrfHash' => $this->security->get_csrf_hash()
+        );
+
+        echo json_encode($data);
+    }
+
+    public function submitRoleAccess()
+    {
+    }
+
     public function serverside_role_access()
     {
         if ($this->input->is_ajax_request() == true) {
@@ -297,8 +334,9 @@ class Dashboard extends CI_Controller
                 $id_c = $field->id;
                 $row[] = $no;
                 $row[] = $field->role_access;
-                $row[] = '<button class="btn btn-outline-danger btn-sm" id="btnDeleteRole" value="' . $id_c . '"><i class="fas fa-trash"></i></button>
-                            <button class="btn btn-outline-info btn-sm" id="btnEditRole" data-id="' . $id_c . '" value="' . $field->role_access . '"><i class="fas fa-edit"></i></button>';
+                $row[] = '<button class="btn btn-outline-warning btn-sm" id="btnViewRole" value="' . $id_c . '"><i class="fas fa-eye"></i></button>
+                <button class="btn btn-outline-info btn-sm" id="btnEditRole" data-id="' . $id_c . '" value="' . $field->role_access . '"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-outline-danger btn-sm" id="btnDeleteRole" value="' . $id_c . '"><i class="fas fa-trash"></i></button>';
                 $data[] = $row;
             }
             $output = array(

@@ -3,7 +3,6 @@
 <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
 
-
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
@@ -23,13 +22,13 @@
 <div class="container-fluid">
     <!-- Small boxes (Stat box) -->
     <div class="row">
-
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
                     <button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#modalAddRole">
                         Add new access
                     </button>
+                    <p><?= $role_name['role_access'] ?></p>
                     <div class="table-responsive">
                         <table class="table table-hover table-striped" id="menu_table">
                             <thead>
@@ -48,15 +47,11 @@
                 </div>
             </div>
         </div>
-
-
     </div>
     <!-- /.row -->
     <!-- Main row -->
-
     <!-- /.row (main row) -->
 </div><!-- /.container-fluid -->
-
 
 <!-- Modal -->
 <div class="modal fade" id="modalAddRole" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -86,11 +81,11 @@
 </div>
 
 <!-- Modal Edit-->
-<div class="modal fade" id="modalEditMenu" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="modalEditRole" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add new menu</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Edit role access</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -99,17 +94,51 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
-                        <input type="hidden" name="id_edit_name" id="id_edit_name" value="">
-                        <label for="menu_edit_name">Menu Name</label>
-                        <input type="text" class="form-control" name="menu_edit_name" id="menu_edit_name" placeholder="Add menu name">
+                        <input type="hidden" name="id_role_access" id="id_role_access" value="">
+                        <label for="role_edit_name">Role Name</label>
+                        <input type="text" class="form-control" name="role_edit_name" id="role_edit_name" placeholder="Add menu name">
 
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="btnSubmitEdit">Add</button>
+                    <button type="button" class="btn btn-primary" id="btnSubmitRole">Add</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal View Access-->
+<div class="modal fade" id="modalViewAccessRole" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit role access</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-hover" id="tableView">
+                    <thead>
+                        <tr>
+                            <th scope="row">No</th>
+                            <th>Menu Name</th>
+                            <th>#</th>
+                            <!-- <th>Action</th> -->
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitRole">Add</button> -->
+            </div>
+
         </div>
     </div>
 </div>
@@ -117,6 +146,7 @@
 <script>
     var csrfName = '<?php echo $this->security->get_csrf_token_name(); ?>',
         csrfHash = '<?php echo $this->security->get_csrf_hash(); ?>';
+
     data_table();
 
     function data_table() {
@@ -153,10 +183,37 @@
     }
     $(document).ready(function() {
 
-        $("#btnAddRole").click(function(e) {
+        $(document).on("click", "#btnViewRole", function(e) {
+            let table = $('#tableView tbody');
+            var id = $(this).attr('value');
+            $.ajax({
+                url: "<?= base_url('admin/dashboard/viewRole') ?>",
+                type: "post",
+                dataType: "json",
+                data: {
+                    id_role: id,
 
+                    [csrfName]: csrfHash
+                },
+                beforeSend: function() {
+                    table.empty();
+                },
+                success: function(data) {
+                    csrfName = data.csrfName;
+                    csrfHash = data.csrfHash;
+                    console.log(data);
+                    $('#modalViewAccessRole').modal('show');
+                    let id = 0;
+                    $.each(data.menu_title, function(id, item) {
+                        id++
+                        table.append("<tr><td>" + id + "</td><td>" + item.menu + "</td><td><input class='form-check-input' type='checkbox'> </td></tr>");
+                    });
+                }
+            });
+        });
+
+        $("#btnAddRole").click(function(e) {
             e.preventDefault();
-            // alert('test');
             var role_name = $('#role_name').val();
             if (role_name == '') {
                 Swal.fire({
@@ -183,17 +240,11 @@
                             'Add new role successfuly!',
                             'success'
                         )
-                        // console.log(data);
                         data_table();
                     }
                 })
             }
         });
-
-        $("#btnEditMenu").click(function() {
-            $("modalEditMenu").modal();
-        });
-
 
         $(document).on('click', "#btnDeleteRole", function(e) {
             e.preventDefault();
@@ -232,32 +283,28 @@
             })
         });
         // Get menu
-        $(document).on('click', '#btnEditMenu', function(e) {
+        $(document).on('click', '#btnEditRole', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-
-
             $.ajax({
-                url: '<?= base_url('admin/dashboard/getEditMenu') ?>',
+                url: '<?= base_url('admin/dashboard/getEditRole') ?>',
                 type: 'post',
                 dataType: 'json',
                 data: {
-                    id_menu: id,
+                    id_role: id,
                     [csrfName]: csrfHash
                 },
                 success: function(data) {
-
                     csrfName = data.csrfName;
                     csrfHash = data.csrfHash;
-                    $('#modalEditMenu').modal('show');
-                    $('#id_edit_name').val(data.menu.id);
-                    $('#menu_edit_name').val(data.menu.menu);
-                    // console.log(data);
+                    $('#modalEditRole').modal('show');
+                    $('#id_role_access').val(data.role.id);
+                    $('#role_edit_name').val(data.role.role_access);
                 }
             })
         });
 
-        $(document).on('click', '#btnSubmitEdit', function(e) {
+        $(document).on('click', '#btnSubmitRole', function(e) {
             e.preventDefault();
 
             var id = $('#id_edit_name').val();
@@ -270,16 +317,14 @@
                     text: 'Something went wrong!',
                 });
             } else {
-                // let form = $('#formSubmitMenu').serialize();
                 $.ajax({
-                    url: '<?= base_url('admin/dashboard/submitEditMenu') ?>',
+                    url: '<?= base_url('admin/dashboard/submitRoleAccess') ?>',
                     dataType: 'json',
                     type: 'post',
                     data: {
                         id_edit_name: id,
                         menu_edit_name: menu_name,
                         [csrfName]: csrfHash
-
                     },
                     success: function(data) {
                         csrfName = data.csrfName;
@@ -290,8 +335,6 @@
                     }
                 })
             }
-
-
         })
     });
 </script>
