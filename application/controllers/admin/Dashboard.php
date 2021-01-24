@@ -258,6 +258,43 @@ class Dashboard extends CI_Controller
         $this->template->load('templates/admin/v_index', 'admin/v_role', $data);
     }
 
+    public function roletes($id)
+    {
+        $data = array(
+            'user_session' => $this->session->userdata(),
+            'menu_title' => user_menu(),
+            // 'role' => $this->role->getById($this->session->userdata('roles')),
+            // 'role_name' => $this->role->getRoleName($this->session->userdata('roles')),
+            'title' => 'Role Management'
+        );
+
+        $data['role'] = $this->db->get_where('user_role_access', ['id' => $id])->row_array();
+        $this->db->where('id !=', 1);
+        $data['menu'] = $this->db->get('user_menu')->result_array();
+        $this->template->load('templates/admin/v_index', 'admin/v_tes', $data);
+    }
+
+    public function changeAccess()
+    {
+        $menu_id = $this->input->post('menuId');
+        $role_id = $this->input->post('roleId');
+
+        $data = [
+            'roles_id' => $role_id,
+            'menu_id' => $menu_id
+        ];
+
+        $result = $this->db->get_where('user_group_menu', $data);
+
+        if ($result->num_rows() < 1) {
+            $this->db->insert('user_group_menu', $data);
+        } else {
+            $this->db->delete('user_group_menu', $data);
+        }
+
+        $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Access Changed!</div>');
+    }
+
     public function viewRole()
     {
         $id_role = $_POST['id_role'];
@@ -334,7 +371,7 @@ class Dashboard extends CI_Controller
                 $id_c = $field->id;
                 $row[] = $no;
                 $row[] = $field->role_access;
-                $row[] = '<button class="btn btn-outline-warning btn-sm" id="btnViewRole" value="' . $id_c . '"><i class="fas fa-eye"></i></button>
+                $row[] = '<a href="' . base_url('admin/dashboard/roletes/' . $id_c . '') . '" class="btn btn-outline-warning btn-sm" id="btnViewRole" value="' . $id_c . '"><i class="fas fa-eye"></i></a>
                 <button class="btn btn-outline-info btn-sm" id="btnEditRole" data-id="' . $id_c . '" value="' . $field->role_access . '"><i class="fas fa-edit"></i></button>
                 <button class="btn btn-outline-danger btn-sm" id="btnDeleteRole" value="' . $id_c . '"><i class="fas fa-trash"></i></button>';
                 $data[] = $row;

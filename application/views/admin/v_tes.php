@@ -28,7 +28,7 @@
                     <button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#modalAddRole">
                         Add new access
                     </button>
-                    <p><?= $role_name['role_access'] ?></p>
+                    <p><?= $role['role_access'] ?></p>
                     <div class="table-responsive">
                         <table class="table table-hover table-striped" id="menu_table">
                             <thead>
@@ -40,7 +40,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-
+                                <?php $i = 1;
+                                foreach ($menu as $mn) : ?>
+                                    <tr>
+                                        <th scope="row"><?= $i ?></th>
+                                        <td><?= $mn['menu'] ?></td>
+                                        <td><input class="form-check-input" type="checkbox" <?= check_access($role['id'], $mn['id']); ?> data-role="<?= $role['id']; ?>" data-menu="<?= $mn['id']; ?>">
+                                        </td>
+                                    </tr>
+                                <?php $i++;
+                                endforeach ?>
                             </tbody>
                         </table>
                     </div>
@@ -147,7 +156,27 @@
     var csrfName = '<?php echo $this->security->get_csrf_token_name(); ?>',
         csrfHash = '<?php echo $this->security->get_csrf_hash(); ?>';
 
-    data_table();
+    $('.form-check-input').on('click', function() {
+        const menuId = $(this).data('menu');
+        const roleId = $(this).data('role');
+
+        $.ajax({
+            url: "<?= base_url('admin/dashboard/changeaccess'); ?>",
+            type: 'post',
+            data: {
+                menuId: menuId,
+                roleId: roleId,
+                [csrfName]: csrfHash
+            },
+            success: function(data) {
+                document.location.href = "<?= base_url('admin/dashboard/roletes/'); ?>" + roleId;
+                csrfName = data.csrfName;
+                csrfHash = data.csrfHash;
+            }
+        });
+
+    });
+    // data_table();
 
     function data_table() {
         var table = $('#menu_table').DataTable({
