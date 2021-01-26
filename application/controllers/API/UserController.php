@@ -16,156 +16,97 @@ class UserController extends RestController
 
     public function index_get()
     {
-        $data = $this->user->contoh();
+
+        $id = $this->get('id');
+        if ($id === null) {
+
+            $data = $this->user->contoh();
+        } else {
+            $data = $this->user->contoh($id);
+        }
+
         if ($data) {
             $this->response([
                 'status' => true,
                 'message' => 'Success',
                 'data' => $data
             ], 200);
+        } else {
+            $this->response([
+                'status' => true,
+                'message' => 'User not found'
+            ], 404);
         }
     }
 
     public function login_post()
     {
-        $config = [
-            [
-                'field' => 'email',
-                'label' => 'email',
-                'rules' => 'required|trim|valid_email',
-                'errors' => [
-                    'required' => 'You must fill the field',
-                    'valid_email' => 'This email is not valid'
-                ],
-
-            ],
-            [
-                'field' => 'password',
-                'label' => 'Password',
-                'rules' => 'required|min_length[6]',
-                'errors' => [
-                    'required' => 'You must provide a Password.',
-                    'min_length' => 'Minimum Password length is 6 characters',
-                ],
-            ],
-
-        ];
-
         $data = array(
             'email' => $this->post('email'),
             'password' => $this->post('password')
         );
-
-        $this->form_validation->set_data($data);
-        $this->form_validation->set_rules($config);
-
-        if ($this->form_validation->run() == FALSE) {
-            $this->response([
-                'status' => false,
-                'message' => $this->form_validation->error_array()
-            ], 404);
-        } else {
-            $validate = $this->user->login($data);
-            if ($validate) {
-                $this->response([
-                    'status' => true,
-                    'message' => 'Success',
-                    'data' => $validate
-                ], 200);
-            } else {
-                $this->response([
-                    'status' => false,
-                    'message' => 'No users were found'
-                ], 404);
-            }
-        }
     }
 
     public function register_post()
     {
+        // $jsonArray = json_decode(file_get_contents('php://input'), true);
 
-        $config = [
-            [
-                'field' => 'first_name',
-                'label' => 'first_name',
-                'rules' => 'required|alpha_dash',
-                'errors' => [
-                    'required' => 'This field cannot be null',
-                    'alpha_dash' => 'You can only use a-z 0-9 _ . – characters for input',
-                ],
-            ],
-            [
-                'field' => 'last_name',
-                'label' => 'last_name',
-                'rules' => 'required|alpha_dash',
-                'errors' => [
-                    'required' => 'This field cannot be null',
-                    'alpha_dash' => 'You can only use a-z 0-9 _ . – characters for input',
-                ],
-            ],
-            [
-                'field' => 'email',
-                'label' => 'email',
-                'rules' => 'required|trim|valid_email|is_unique[users.email]',
-                'errors' => [
-                    'required' => 'We need both username and password',
-                    'is_unique' => 'This email has already registered!',
-                ],
-            ],
-            [
-                'field' => 'password',
-                'label' => 'Password',
-                'rules' => 'required|min_length[6]',
-                'errors' => [
-                    'required' => 'You must provide a Password.',
-                    'min_length' => 'Minimum Password length is 6 characters',
-                ],
-            ],
-            [
-                'field' => 'phone',
-                'label' => 'phone',
-                'rules' => 'required|numeric',
-                'errors' => [
-                    'required' => 'You must provide a Password.',
-                    'numeric' => 'This field only accept numbers',
-                ],
-            ],
-        ];
+        $first_name = strip_tags($_POST['first_name']);
+        $last_name = strip_tags($_POST['last_name']);
+        $email = strip_tags($_POST['email']);
+        $password = $_POST['password'];
+        $photo_path = 'default.png';
+        $phone = '';
+        $create_at = time();
+        $update_at = time();
+        $roles = 1;
+        $delete_at = '';
+        $last_login = 0;
 
+        if (!empty($first_name) && !empty($last_name) && !empty($email) && !empty($password)) {
+            // $data['email'] = $email;
+            $user_check = $this->user->check_user($email);
 
-        $data = array(
-            'first_name' => $this->post('first_name'),
-            'last_name' => $this->post('last_name'),
-            'email' => $this->post('email'),
-            'password' => password_hash($this->post('password'), PASSWORD_DEFAULT),
-            'phone' => $this->post('phone'),
-            'create_at' => time(),
-            'update_at' => time(),
-            'roles' => '1'
-        );
-
-        $this->form_validation->set_data($data);
-        $this->form_validation->set_rules($config);
-
-        if ($this->form_validation->run() == FALSE) {
-            $this->response([
-                'status' => false,
-                'message' => $this->form_validation->error_array()
-            ], 404);
-        } else {
-            $insert = $this->user->create_user($data);
-            if ($insert) {
-                $this->response([
-                    'status' => true,
-                    'message' => 'Success to create new user',
-                    'data' => $this->db->insert_id()
-                ], 200);
-            } else {
+            if ($user_check > 0) {
                 $this->response([
                     'status' => false,
-                    'message' => 'Something wrong'
+                    'message' => 'Email already registered'
                 ], 404);
+            } else {
+                $data = [
+                    'first_name' => $first_name,
+                    'last_name' => $last_name,
+                    'email' => $email,
+                    'password' => password_hash($password, PASSWORD_DEFAULT),
+                    'photo_profile_path' => $photo_path,
+                    'phone' => $phone,
+                    'create_at' => $create_at,
+                    'update_at' => $update_at,
+                    'is_active' => 0,
+                    'roles' => $roles,
+                    'deleted_at' => $delete_at,
+                    'last_login' => $last_login,
+                ];
+
+                $insertdata = $this->user->insertdata($data);
+
+                if ($insertdata) {
+                    $this->response([
+                        'status' => false,
+                        'message' => 'Success'
+                    ], 200);
+                } else {
+                    $this->response([
+                        'status' => false,
+                        'message' => 'Failed to register'
+                    ], 404);
+                }
             }
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Something wrong'
+            ], 404);
         }
     }
 

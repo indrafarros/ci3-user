@@ -453,7 +453,12 @@ $config['csrf_token_name'] = 'csrf_security_web'; // Token name (You can update 
 $config['csrf_cookie_name'] = 'csrf_cookie_name';
 $config['csrf_expire'] = 7200;
 $config['csrf_regenerate'] = TRUE;
-$config['csrf_exclude_uris'] = array('admin/dashboard/serverside_get_menu', 'admin/dashboard/serverside_get_submenu', 'admin/dashboard/serverside_role_access');
+$config['csrf_exclude_uris'] = array(
+    'admin/dashboard/serverside_get_menu',
+    'admin/dashboard/serverside_get_submenu',
+    'admin/dashboard/serverside_role_access',
+    'api/usercontroller/[a-z]+'
+);
 
 /*
 |--------------------------------------------------------------------------
