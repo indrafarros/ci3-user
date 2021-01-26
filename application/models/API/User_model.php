@@ -9,6 +9,11 @@ class User_model extends CI_Model
         return $this->db->get_where('users', ['email' => $email])->result_array();
     }
 
+    public function contoh()
+    {
+        return $this->db->get('users')->result_array();
+    }
+
     public function create_user($data)
     {
         return $this->db->insert('users', $data);

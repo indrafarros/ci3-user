@@ -14,6 +14,18 @@ class UserController extends RestController
         $this->load->model('API/User_model', 'user');
     }
 
+    public function index_get()
+    {
+        $data = $this->user->contoh();
+        if ($data) {
+            $this->response([
+                'status' => true,
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+        }
+    }
+
     public function login_post()
     {
         $config = [
