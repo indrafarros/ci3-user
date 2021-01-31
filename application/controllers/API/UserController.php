@@ -14,17 +14,15 @@ class UserController extends RestController
         $this->load->model('API/User_model', 'user');
     }
 
-    public function index_get()
+    public function user_get()
     {
 
         $id = $this->get('id');
         if ($id === null) {
-
             $data = $this->user->contoh();
         } else {
             $data = $this->user->contoh($id);
         }
-
         if ($data) {
             $this->response([
                 'status' => true,
@@ -193,5 +191,25 @@ class UserController extends RestController
 
     public function logout()
     {
+        $session = [
+            'is_login',
+            'first_name',
+            'email',
+            'roles'
+        ];
+
+        $logout = $this->session->unset_userdata($session);
+
+        if ($logout) {
+            $this->response([
+                'status' => true,
+                'message' => 'Logout'
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Failed, please try again'
+            ], 404);
+        }
     }
 }
